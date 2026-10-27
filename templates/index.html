@@ -1,0 +1,152 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow | Task Manager</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f5fb;
+            color: #20243a;
+        }
+
+        header {
+            background: #242b55;
+            color: white;
+            padding: 24px;
+            text-align: center;
+        }
+
+        header h1 { margin: 0 0 8px; }
+        header p { margin: 0; color: #d8ddff; }
+
+        main {
+            max-width: 850px;
+            margin: 30px auto;
+            padding: 0 18px;
+        }
+
+        .panel {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            margin-bottom: 22px;
+            box-shadow: 0 3px 14px #20243a12;
+        }
+
+        input, textarea, select, button {
+            font: inherit;
+            padding: 11px;
+            border-radius: 7px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            border: 1px solid #d7dbea;
+            margin: 7px 0 12px;
+        }
+
+        button {
+            border: 0;
+            cursor: pointer;
+            background: #4f5edb;
+            color: white;
+        }
+
+        button:hover { opacity: 0.88; }
+
+        .task {
+            border: 1px solid #e3e6f0;
+            padding: 16px;
+            border-radius: 9px;
+            margin-top: 12px;
+        }
+
+        .task h3 { margin: 0 0 8px; }
+        .task p { color: #60677d; }
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .task-actions form { flex: 1; min-width: 180px; }
+        .task-actions select { margin: 0; }
+        .delete { background: #d9485f; }
+
+        .empty { color: #777e92; text-align: center; padding: 20px; }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #777e92;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>TaskFlow</h1>
+        <p>Plan it. Track it. Complete it.</p>
+    </header>
+
+    <main>
+        <section class="panel">
+            <h2>Add a New Task</h2>
+            <form action="/add" method="POST">
+                <label for="title">Task title</label>
+                <input id="title" name="title" required
+                       placeholder="e.g. Create login page">
+
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="3"
+                          placeholder="Describe your task..."></textarea>
+
+                <button type="submit">+ Add Task</button>
+            </form>
+        </section>
+
+        <section class="panel">
+            <h2>Your Tasks ({{ tasks|length }})</h2>
+
+            {% if tasks %}
+                {% for task in tasks %}
+                    <article class="task">
+                        <h3>{{ task.title }}</h3>
+                        <p>{{ task.description or 'No description provided.' }}</p>
+
+                        <div class="task-actions">
+                            <form action="/update/{{ task.id }}" method="POST">
+                                <select name="status" aria-label="Task status"
+                                        onchange="this.form.submit()">
+                                    {% for status in ['To Do', 'In Progress', 'Done'] %}
+                                        <option value="{{ status }}"
+                                            {% if task.status == status %}selected{% endif %}>
+                                            {{ status }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </form>
+
+                            <form action="/delete/{{ task.id }}" method="POST"
+                                  onsubmit="return confirm('Delete this task?')">
+                                <button class="delete" type="submit">Delete</button>
+                            </form>
+                        </div>
+                    </article>
+                {% endfor %}
+            {% else %}
+                <p class="empty">No tasks yet. Add your first task above!</p>
+            {% endif %}
+        </section>
+    </main>
+
+    <footer>TaskFlow · Agile &amp; DevOps Project</footer>
+</body>
+</html>
